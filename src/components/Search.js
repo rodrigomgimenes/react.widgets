@@ -3,8 +3,19 @@ import axios from 'axios';
 
 const Search = () => {
   const [term, setTerm] = useState('programming');
+  const [debouncedTerm, setDebouncedTerm] = useState(term);
   const [results, setResults] = useState([]);
   
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setDebouncedTerm(term);
+    }, 500);
+
+    return () => {
+      clearTimeout(timerId);
+    }
+  }, [term]);
+
   useEffect(() => {
     const searchWikiApi = async () => {
       const { data } = await axios.get('https://en.wikipedia.org/w/api.php', {
@@ -13,31 +24,15 @@ const Search = () => {
           list: 'search',
           origin: '*',
           format: 'json',
-          srsearch: term
+          srsearch: debouncedTerm
         }
       });
 
       setResults(data.query.search);
     };
 
-    // First time rendering component
-    if (term && !results.length) {
-      searchWikiApi();
-    }
-    else {
-      // Setting a timer to Search after 500ms
-      const timeoutId = setTimeout(() => {
-        if (term) { searchWikiApi(); }
-      }, 500);
-  
-      // ONLY a FUNCTION can be call by an UseEffect
-      // Cancelling the previous timeout
-      return () => {
-        clearTimeout(timeoutId);
-      }
-    }
-
-  }, [term]);
+    searchWikiApi();
+  }, [debouncedTerm]);
 
   const renderedResults = results.map(result => {
     return (
