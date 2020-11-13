@@ -1,7 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const Dropdown = ({ options, selected, onSelectedChange }) => {
   const [open, setOpen] = useState(false);
+  const ref = useRef();
+
+  const onBodyClick = (event) => {
+    if (ref.current.contains(event.target)) {
+      return;
+    }
+
+    // Closes the dropdown in case of clicking outside the component (or in the body of the webpage)
+    setOpen(false);
+  }
+
+  useEffect(() => {
+    document.body.addEventListener('click', onBodyClick);
+
+    // Preventing Error - Only if the dropdown component is removed from the DOM
+    return () => {
+      document.body.removeEventListener('click', onBodyClick);
+    }
+  }, []);
 
   const renderedOptions = options.map(option => {
     if (option.value === selected.value) { return null; }
@@ -18,7 +37,10 @@ const Dropdown = ({ options, selected, onSelectedChange }) => {
   })
 
   return (
-    <div className="ui form">
+    <div 
+      className="ui form" 
+      ref={ref}
+    >
       <div className="field">
         <label className="label">Select a Color</label>
         <div 
