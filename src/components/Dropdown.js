@@ -5,7 +5,7 @@ const Dropdown = ({ options, selected, onSelectedChange, label }) => {
   const ref = useRef();
 
   const onBodyClick = (event) => {
-    if (ref.current.contains(event.target)) {
+    if (ref.current === null || ref.current.contains(event.target)) {
       return;
     }
 
